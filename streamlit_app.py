@@ -4,8 +4,11 @@ import time
 import threading
 import hashlib
 import os
-from datetime import datetime
+import base64
+
+from datetime import datetime, timedelta
 from pathlib import Path
+
 import database as db
 
 
@@ -15,21 +18,14 @@ import database as db
 
 st.set_page_config(
     page_title="RK RAJA XWD",
-    page_icon="😈",
+    page_icon="☠️",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 
 # =========================================================
-# FILES
-# =========================================================
-
-BG_IMAGE = Path("background.png")
-
-
-# =========================================================
-# OWNER / LICENSE
+# CONFIG
 # =========================================================
 
 OWNER_USERNAME = os.getenv(
@@ -42,9 +38,14 @@ OWNER_LICENSE = os.getenv(
     "RKRAJA-PREMIUM-2026"
 )
 
+LICENSE_DAYS = 30
+
+BG_IMAGE = Path("155933.png")
+WELCOME_AUDIO = Path("welcome.mp3")
+
 
 # =========================================================
-# HACKER CSS
+# HACKER GREEN / BLACK CSS
 # =========================================================
 
 CUSTOM_CSS = """
@@ -54,6 +55,9 @@ CUSTOM_CSS = """
 'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&display=swap'
 );
 
+
+/* GLOBAL */
+
 * {
     box-sizing: border-box;
 }
@@ -61,31 +65,35 @@ CUSTOM_CSS = """
 html,
 body,
 [class*="css"] {
-    font-family: 'Share Tech Mono', monospace !important;
+    font-family:
+        'Share Tech Mono',
+        monospace !important;
 }
 
 
-/* MAIN BACKGROUND */
+/* BLACK + GREEN BACKGROUND */
 
 .stApp {
 
-    background:
+    background-color: #000000 !important;
+
+    background-image:
         linear-gradient(
-            rgba(0,0,0,.73),
-            rgba(0,0,0,.73)
+            rgba(0,0,0,.78),
+            rgba(0,0,0,.82)
         ),
-        url("background.png");
+        url("155933.png");
 
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     background-attachment: fixed;
 
-    color: white !important;
+    color: #00ff41 !important;
 }
 
 
-/* SCAN LINES */
+/* MATRIX LINES */
 
 .stApp::before {
 
@@ -100,8 +108,8 @@ body,
     background:
         repeating-linear-gradient(
             0deg,
-            rgba(0,255,255,.025) 0px,
-            rgba(0,255,255,.025) 1px,
+            rgba(0,255,65,.025) 0px,
+            rgba(0,255,65,.025) 1px,
             transparent 1px,
             transparent 4px
         );
@@ -110,7 +118,7 @@ body,
 }
 
 
-/* CONTAINER */
+/* MAIN PANEL */
 
 .main .block-container {
 
@@ -119,28 +127,23 @@ body,
     z-index: 1;
 
     background:
-        linear-gradient(
-            135deg,
-            rgba(0,0,0,.84),
-            rgba(2,15,28,.80),
-            rgba(20,0,30,.80)
-        );
+        rgba(0,0,0,.84);
 
     border:
-        1px solid rgba(0,255,255,.35);
+        1px solid rgba(0,255,65,.38);
 
     border-radius:
-        25px;
+        20px;
 
     padding:
-        35px;
+        32px;
 
     box-shadow:
-        0 0 25px rgba(0,255,255,.13),
-        0 0 70px rgba(130,0,255,.10);
+        0 0 25px rgba(0,255,65,.10),
+        inset 0 0 25px rgba(0,255,65,.025);
 
     backdrop-filter:
-        blur(10px);
+        blur(8px);
 }
 
 
@@ -149,29 +152,27 @@ body,
 .main-header {
 
     padding:
-        38px 20px;
+        36px 20px;
 
     text-align:
         center;
 
+    border:
+        1px solid #00ff41;
+
     border-radius:
-        22px;
+        18px;
 
     background:
-        linear-gradient(
-            120deg,
-            rgba(0,255,255,.08),
-            rgba(120,0,255,.10),
-            rgba(255,0,170,.08)
-        );
-
-    border:
-        1px solid rgba(0,255,255,.30);
+        rgba(0,0,0,.76);
 
     box-shadow:
-        0 0 30px rgba(0,255,255,.12);
+        0 0 22px rgba(0,255,65,.18),
+        inset 0 0 20px rgba(0,255,65,.04);
 }
 
+
+/* HACKER TITLE */
 
 .main-header h1 {
 
@@ -188,35 +189,40 @@ body,
     letter-spacing:
         5px;
 
-    background:
-        linear-gradient(
-            90deg,
-            #00ffff,
-            #00ff88,
-            #ffffff,
-            #a855ff,
-            #ff00aa,
-            #00ffff
-        );
+    color:
+        #00ff41;
 
-    background-size:
-        400% auto;
-
-    -webkit-background-clip:
-        text;
-
-    -webkit-text-fill-color:
-        transparent;
+    text-shadow:
+        0 0 5px #00ff41,
+        0 0 15px #00ff41,
+        0 0 35px rgba(0,255,65,.65);
 
     animation:
-        rainbow 5s linear infinite;
+        hackerGlow 2s ease-in-out infinite alternate;
+}
+
+
+@keyframes hackerGlow {
+
+    from {
+        text-shadow:
+            0 0 5px #00ff41,
+            0 0 12px #00ff41;
+    }
+
+    to {
+        text-shadow:
+            0 0 8px #00ff41,
+            0 0 25px #00ff41,
+            0 0 45px #00ff41;
+    }
 }
 
 
 .main-header p {
 
     color:
-        #00ffff;
+        #00ff41;
 
     font-family:
         'Share Tech Mono',
@@ -226,23 +232,11 @@ body,
         4px;
 
     text-shadow:
-        0 0 8px #00ffff;
+        0 0 8px #00ff41;
 }
 
 
-@keyframes rainbow {
-
-    0% {
-        background-position: 0% center;
-    }
-
-    100% {
-        background-position: 400% center;
-    }
-}
-
-
-/* ALL HEADINGS */
+/* HEADINGS */
 
 h1,
 h2,
@@ -253,17 +247,23 @@ h4 {
         'Orbitron',
         monospace !important;
 
+    color:
+        #00ff41 !important;
+
+    text-shadow:
+        0 0 8px rgba(0,255,65,.55);
+
     letter-spacing:
         2px !important;
 }
 
 
-/* LABEL */
+/* LABELS */
 
 label {
 
     color:
-        #00ffff !important;
+        #00ff41 !important;
 
     font-family:
         'Orbitron',
@@ -272,38 +272,38 @@ label {
     font-weight:
         800 !important;
 
-    letter-spacing:
-        1px !important;
-
     text-shadow:
-        0 0 7px #00ffff;
+        0 0 6px #00ff41;
 }
 
 
-/* INPUT */
+/* INPUTS */
 
 .stTextInput input,
 .stTextArea textarea,
 .stNumberInput input {
 
     background:
-        rgba(0,0,0,.78) !important;
+        #000000 !important;
 
     color:
-        #00ffcc !important;
+        #00ff41 !important;
 
     border:
-        1px solid #00ffff !important;
+        1px solid #00ff41 !important;
 
     border-radius:
-        10px !important;
+        8px !important;
 
     font-family:
         'Share Tech Mono',
         monospace !important;
 
     caret-color:
-        #00ffff !important;
+        #00ff41 !important;
+
+    box-shadow:
+        inset 0 0 8px rgba(0,255,65,.06);
 }
 
 
@@ -312,41 +312,31 @@ label {
 .stNumberInput input:focus {
 
     border-color:
-        #ff00ff !important;
+        #00ff41 !important;
 
     box-shadow:
-        0 0 15px rgba(255,0,255,.30) !important;
+        0 0 12px rgba(0,255,65,.30) !important;
 }
 
 
-/* BUTTON */
+/* BUTTONS */
 
 .stButton > button {
 
     min-height:
-        48px;
+        46px;
 
     background:
-        linear-gradient(
-            90deg,
-            #00c6ff,
-            #0066ff,
-            #8b00ff,
-            #ff00aa,
-            #00ff99
-        ) !important;
-
-    background-size:
-        300% auto !important;
+        #000000 !important;
 
     color:
-        white !important;
+        #00ff41 !important;
 
     border:
-        1px solid rgba(255,255,255,.25) !important;
+        1px solid #00ff41 !important;
 
     border-radius:
-        10px !important;
+        8px !important;
 
     font-family:
         'Orbitron',
@@ -358,24 +348,33 @@ label {
     letter-spacing:
         1px !important;
 
+    text-shadow:
+        0 0 5px #00ff41;
+
     box-shadow:
-        0 0 18px rgba(0,255,255,.20);
+        0 0 10px rgba(0,255,65,.12);
 
     transition:
-        .25s ease !important;
+        .2s ease !important;
 }
 
 
 .stButton > button:hover {
 
-    transform:
-        translateY(-2px);
+    background:
+        #00ff41 !important;
 
-    background-position:
-        right center !important;
+    color:
+        #000000 !important;
+
+    text-shadow:
+        none;
 
     box-shadow:
-        0 0 25px rgba(0,255,255,.45);
+        0 0 22px rgba(0,255,65,.60);
+
+    transform:
+        translateY(-2px);
 }
 
 
@@ -384,23 +383,26 @@ label {
 .stTabs [data-baseweb="tab-list"] {
 
     gap:
-        8px;
+        5px;
 
     background:
-        rgba(0,0,0,.55);
+        #000000;
 
     padding:
-        8px;
+        7px;
+
+    border:
+        1px solid rgba(0,255,65,.30);
 
     border-radius:
-        14px;
+        10px;
 }
 
 
 .stTabs [data-baseweb="tab"] {
 
     color:
-        #00ffff !important;
+        #00ff41 !important;
 
     font-family:
         'Orbitron',
@@ -414,18 +416,13 @@ label {
 .stTabs [aria-selected="true"] {
 
     color:
-        white !important;
+        #000000 !important;
 
     background:
-        linear-gradient(
-            90deg,
-            #005eff,
-            #8b00ff,
-            #ff0099
-        ) !important;
+        #00ff41 !important;
 
     border-radius:
-        10px;
+        7px;
 }
 
 
@@ -434,28 +431,26 @@ label {
 [data-testid="stMetric"] {
 
     background:
-        linear-gradient(
-            135deg,
-            rgba(0,255,255,.10),
-            rgba(120,0,255,.10),
-            rgba(255,0,170,.08)
-        );
+        #000000;
 
     border:
-        1px solid rgba(0,255,255,.28);
+        1px solid rgba(0,255,65,.38);
 
     border-radius:
-        16px;
+        12px;
 
     padding:
-        18px;
+        16px;
+
+    box-shadow:
+        0 0 12px rgba(0,255,65,.08);
 }
 
 
 [data-testid="stMetricLabel"] {
 
     color:
-        #00ffff !important;
+        #00ff41 !important;
 
     font-family:
         'Orbitron',
@@ -466,7 +461,7 @@ label {
 [data-testid="stMetricValue"] {
 
     color:
-        white !important;
+        #00ff41 !important;
 
     font-family:
         'Orbitron',
@@ -474,10 +469,13 @@ label {
 
     font-weight:
         900 !important;
+
+    text-shadow:
+        0 0 8px #00ff41;
 }
 
 
-/* VOICE BOX */
+/* VOICE */
 
 .voice-box {
 
@@ -488,24 +486,19 @@ label {
         18px;
 
     border:
-        1px solid #00ffff;
+        1px solid #00ff41;
 
     border-radius:
-        15px;
+        12px;
 
     text-align:
         center;
 
     background:
-        linear-gradient(
-            90deg,
-            rgba(0,255,255,.08),
-            rgba(150,0,255,.10),
-            rgba(255,0,150,.08)
-        );
+        rgba(0,0,0,.80);
 
     color:
-        #00ffff;
+        #00ff41;
 
     font-family:
         'Orbitron',
@@ -518,7 +511,10 @@ label {
         2px;
 
     text-shadow:
-        0 0 10px #00ffff;
+        0 0 10px #00ff41;
+
+    box-shadow:
+        0 0 18px rgba(0,255,65,.12);
 }
 
 
@@ -527,51 +523,54 @@ label {
 .console-output {
 
     background:
-        rgba(0,0,0,.88);
+        #000000;
 
     border:
-        1px solid #00ffff;
+        1px solid #00ff41;
 
     border-radius:
-        14px;
+        10px;
 
     padding:
-        18px;
+        16px;
 
     max-height:
         400px;
 
     overflow-y:
         auto;
+
+    box-shadow:
+        inset 0 0 15px rgba(0,255,65,.05);
 }
 
 
 .console-line {
 
     padding:
-        9px 12px;
+        8px 10px;
 
     margin-bottom:
-        7px;
-
-    background:
-        rgba(0,255,255,.06);
-
-    border-left:
-        3px solid #00ffff;
-
-    border-radius:
         6px;
 
+    background:
+        rgba(0,255,65,.035);
+
+    border-left:
+        3px solid #00ff41;
+
+    border-radius:
+        4px;
+
     color:
-        #00ff99;
+        #00ff41;
 
     font-family:
         'Share Tech Mono',
         monospace !important;
 
     text-shadow:
-        0 0 5px rgba(0,255,120,.35);
+        0 0 5px rgba(0,255,65,.45);
 }
 
 
@@ -580,22 +579,22 @@ label {
 .success-box {
 
     background:
-        rgba(0,255,120,.08);
+        rgba(0,255,65,.05);
 
     border:
-        1px solid #00ff99;
+        1px solid #00ff41;
 
     border-radius:
-        10px;
+        8px;
 
     padding:
-        14px;
+        12px;
 
     text-align:
         center;
 
     color:
-        #00ff99;
+        #00ff41;
 
     font-family:
         'Orbitron',
@@ -603,6 +602,9 @@ label {
 
     font-weight:
         900;
+
+    box-shadow:
+        0 0 10px rgba(0,255,65,.10);
 }
 
 
@@ -611,36 +613,25 @@ label {
 section[data-testid="stSidebar"] {
 
     background:
-        linear-gradient(
-            160deg,
-            #02060d,
-            #071426,
-            #13051c
-        ) !important;
+        #000000 !important;
+
+    border-right:
+        1px solid rgba(0,255,65,.25);
 }
 
 
-/* PHOTO PREVIEW */
+/* INFO */
 
-.photo-card {
-
-    border:
-        1px solid #00ffff;
-
-    border-radius:
-        18px;
-
-    padding:
-        10px;
+.stAlert {
 
     background:
-        rgba(0,0,0,.65);
+        #000000 !important;
 
-    box-shadow:
-        0 0 20px rgba(0,255,255,.15);
+    border:
+        1px solid rgba(0,255,65,.30) !important;
 
-    text-align:
-        center;
+    color:
+        #00ff41 !important;
 }
 
 
@@ -661,123 +652,134 @@ section[data-testid="stSidebar"] {
         'Orbitron',
         monospace !important;
 
-    font-size:
-        13px;
-
     letter-spacing:
         3px;
 
     font-weight:
         900;
 
-    background:
-        linear-gradient(
-            90deg,
-            #00ffff,
-            #00ff88,
-            #ffffff,
-            #a855ff,
-            #ff00aa,
-            #00ffff
-        );
+    color:
+        #00ff41;
 
-    background-size:
-        300% auto;
-
-    -webkit-background-clip:
-        text;
-
-    -webkit-text-fill-color:
-        transparent;
-
-    animation:
-        rainbow 5s linear infinite;
+    text-shadow:
+        0 0 8px #00ff41,
+        0 0 20px rgba(0,255,65,.55);
 }
 
 
-/* STREAMLIT BRAND */
+/* HIDE STREAMLIT MENU */
 
 #MainMenu {
-    visibility: hidden;
+    visibility:
+        hidden;
 }
 
 footer {
-    visibility: hidden;
+    visibility:
+        hidden;
 }
 
 </style>
-"""
-
-st.markdown(
-    CUSTOM_CSS,
+""",
     unsafe_allow_html=True
 )
 
 
 # =========================================================
-# WELCOME VOICE
+# WELCOME AUDIO
 # =========================================================
 
-WELCOME_VOICE = """
-<script>
+def get_audio_html():
 
-(function () {
+    if not WELCOME_AUDIO.exists():
 
-    const text =
-        "RK RAJA XWD ke end to end mein aapka welcome hai.";
+        return """
+        <div class="voice-box">
+            🔊 welcome.mp3 NOT FOUND
+        </div>
+        """
 
-    function speak() {
+    try:
 
-        if (!("speechSynthesis" in window)) {
-            return;
-        }
+        audio_data = base64.b64encode(
+            WELCOME_AUDIO.read_bytes()
+        ).decode("utf-8")
 
-        window.speechSynthesis.cancel();
+        return f"""
+        <div class="voice-box">
 
-        const msg =
-            new SpeechSynthesisUtterance(text);
+            🔊 RK RAJA XWD KE END TO END
+            MEIN AAPKA WELCOME HAI
 
-        msg.lang = "hi-IN";
-        msg.rate = 0.88;
-        msg.pitch = 1.0;
-        msg.volume = 1.0;
+            <br><br>
 
-        window.speechSynthesis.speak(msg);
-    }
+            <audio
+                id="rkWelcomeAudio"
+                controls
+                preload="auto"
+                style="width:100%;"
+            >
+
+                <source
+                    src="data:audio/mpeg;base64,{audio_data}"
+                    type="audio/mpeg"
+                >
+
+            </audio>
+
+        </div>
+
+        <script>
+
+        const audio =
+            document.getElementById(
+                "rkWelcomeAudio"
+            );
+
+        setTimeout(
+            function () {
+
+                audio.play()
+                .catch(
+                    function () {
+                        console.log(
+                            "Browser autoplay blocked. Tap play."
+                        );
+                    }
+                );
+
+            },
+            1500
+        );
+
+        document.addEventListener(
+            "click",
+            function () {
+
+                audio.play()
+                .catch(
+                    function () {}
+                );
+
+            },
+            { once: true }
+        );
+
+        </script>
+        """
+
+    except Exception:
+
+        return """
+        <div class="voice-box">
+            ⚠️ AUDIO LOAD ERROR
+        </div>
+        """
 
 
-    setTimeout(
-        speak,
-        1200
-    );
-
-
-    document.addEventListener(
-        "click",
-        function () {
-
-            if (
-                !window.__rkWelcomePlayed
-            ) {
-
-                window.__rkWelcomePlayed = true;
-
-                speak();
-            }
-
-        },
-        { once: true }
-    );
-
-})();
-
-</script>
-"""
-
-components.html(
-    WELCOME_VOICE,
-    height=1,
-    scrolling=False
+st.markdown(
+    get_audio_html(),
+    unsafe_allow_html=True
 )
 
 
@@ -786,23 +788,34 @@ components.html(
 # =========================================================
 
 defaults = {
+
     "logged_in": False,
+
     "user_id": None,
+
     "username": None,
+
     "license_ok": False,
+
+    "license_expiry": None,
+
     "logs": [],
+
     "running": False,
+
     "message_count": 0,
 }
+
 
 for key, value in defaults.items():
 
     if key not in st.session_state:
+
         st.session_state[key] = value
 
 
 # =========================================================
-# FUNCTIONS
+# HELPERS
 # =========================================================
 
 def add_log(message):
@@ -823,6 +836,7 @@ def add_log(message):
 def cookie_fingerprint(value):
 
     if not value:
+
         return "NOT SET"
 
     return hashlib.sha256(
@@ -832,22 +846,63 @@ def cookie_fingerprint(value):
 
 def is_owner():
 
-    username = st.session_state.username
+    username = (
+        st.session_state.username
+    )
 
-    if not username:
-        return False
-
-    return (
-        username.lower()
+    return bool(
+        username
+        and username.lower()
         == OWNER_USERNAME.lower()
     )
 
 
-def demo_worker(messages, delay):
+def activate_license():
+
+    st.session_state.license_ok = True
+
+    st.session_state.license_expiry = (
+        datetime.now()
+        + timedelta(
+            days=LICENSE_DAYS
+        )
+    )
+
+
+def license_valid():
+
+    if is_owner():
+
+        return True
+
+    if not st.session_state.license_ok:
+
+        return False
+
+    expiry = (
+        st.session_state.license_expiry
+    )
+
+    if not expiry:
+
+        return False
+
+    return datetime.now() < expiry
+
+
+# =========================================================
+# LOCAL TEST
+# =========================================================
+
+def demo_worker(
+    messages,
+    delay
+):
 
     for message in messages:
 
         if not st.session_state.running:
+
             break
 
         time.sleep(delay)
@@ -859,22 +914,28 @@ def demo_worker(messages, delay):
             + str(
                 st.session_state.message_count
             )
-            + ": "
+            + " : "
             + message[:60]
         )
 
 
-def start_demo(messages, delay):
+def start_demo(
+    messages,
+    delay
+):
 
     if st.session_state.running:
+
         return
 
     st.session_state.running = True
+
     st.session_state.message_count = 0
+
     st.session_state.logs = []
 
     add_log(
-        "Local demo automation started."
+        "LOCAL TEST STARTED"
     )
 
     def worker():
@@ -891,7 +952,7 @@ def start_demo(messages, delay):
             st.session_state.running = False
 
             add_log(
-                "Local demo automation stopped."
+                "LOCAL TEST STOPPED"
             )
 
     threading.Thread(
@@ -901,59 +962,7 @@ def start_demo(messages, delay):
 
 
 # =========================================================
-# LICENSE PAGE
-# =========================================================
-
-def license_page():
-
-    st.markdown(
-        """
-        <div class="main-header">
-            <h1>☠ PREMIUM ACCESS ☠</h1>
-            <p>// LICENSE TERMINAL //</p>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        """
-        <div class="voice-box">
-            🔐 PREMIUM LICENSE REQUIRED
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    license_key = st.text_input(
-        "ENTER LICENSE KEY",
-        type="password"
-    )
-
-    if st.button(
-        "🔓 ACTIVATE PREMIUM",
-        use_container_width=True
-    ):
-
-        if license_key == OWNER_LICENSE:
-
-            st.session_state.license_ok = True
-
-            st.success(
-                "✅ PREMIUM ACCESS ACTIVATED"
-            )
-
-            st.rerun()
-
-        else:
-
-            st.error(
-                "❌ INVALID LICENSE KEY"
-            )
-
-
-# =========================================================
-# LOGIN PAGE
+# LOGIN
 # =========================================================
 
 def login_page():
@@ -965,21 +974,8 @@ def login_page():
             <h1>☠ RK RAJA XWD ☠</h1>
 
             <p>
-                // SECURE ACCESS TERMINAL //
+                // SECURE HACKER TERMINAL //
             </p>
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-
-    st.markdown(
-        """
-        <div class="voice-box">
-
-            🔊 RK RAJA XWD KE END TO END
-            MEIN AAPKA WELCOME HAI
 
         </div>
         """,
@@ -994,8 +990,6 @@ def login_page():
         ]
     )
 
-
-    # LOGIN
 
     with login_tab:
 
@@ -1012,14 +1006,14 @@ def login_page():
 
 
         if st.button(
-            "⚡ LOGIN TO SYSTEM",
+            "⚡ LOGIN",
             use_container_width=True
         ):
 
             if not username or not password:
 
                 st.warning(
-                    "⚠ ENTER BOTH FIELDS"
+                    "⚠ ENTER USERNAME AND PASSWORD"
                 )
 
             else:
@@ -1032,10 +1026,13 @@ def login_page():
                 if uid:
 
                     st.session_state.logged_in = True
+
                     st.session_state.user_id = uid
+
                     st.session_state.username = username
 
                     if is_owner():
+
                         st.session_state.license_ok = True
 
                     st.rerun()
@@ -1046,8 +1043,6 @@ def login_page():
                         "❌ ACCESS DENIED"
                     )
 
-
-    # SIGN UP
 
     with signup_tab:
 
@@ -1074,7 +1069,11 @@ def login_page():
             use_container_width=True
         ):
 
-            if not username or not password or not confirm:
+            if (
+                not username
+                or not password
+                or not confirm
+            ):
 
                 st.warning(
                     "⚠ FILL ALL FIELDS"
@@ -1094,9 +1093,62 @@ def login_page():
                 )
 
                 if ok:
+
                     st.success(msg)
+
                 else:
+
                     st.error(msg)
+
+
+# =========================================================
+# LICENSE
+# =========================================================
+
+def license_page():
+
+    st.markdown(
+        """
+        <div class="main-header">
+
+            <h1>💀 PREMIUM ACCESS</h1>
+
+            <p>
+                // 30 DAY LICENSE TERMINAL //
+            </p>
+
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+    key = st.text_input(
+        "ENTER LICENSE KEY",
+        type="password"
+    )
+
+
+    if st.button(
+        "🔓 ACTIVATE 30 DAYS",
+        use_container_width=True
+    ):
+
+        if key == OWNER_LICENSE:
+
+            activate_license()
+
+            st.success(
+                "✅ 30-DAY LICENSE ACTIVATED"
+            )
+
+            st.rerun()
+
+        else:
+
+            st.error(
+                "❌ INVALID LICENSE"
+            )
 
 
 # =========================================================
@@ -1117,7 +1169,7 @@ def main_app():
             <h1>☠ RK RAJA XWD ☠</h1>
 
             <p>
-                // PREMIUM MULTI-COLOUR TERMINAL //
+                // HACKER TERMINAL ONLINE //
             </p>
 
         </div>
@@ -1126,11 +1178,10 @@ def main_app():
     )
 
 
-    # SIDEBAR
-
     st.sidebar.markdown(
         "## 👤 USER TERMINAL"
     )
+
 
     st.sidebar.write(
         "**USERNAME:** "
@@ -1139,29 +1190,38 @@ def main_app():
         )
     )
 
-    st.sidebar.write(
-        "**USER ID:** "
-        + str(uid)
-    )
-
 
     if is_owner():
 
         st.sidebar.markdown(
-            '<div class="success-box">'
-            '👑 OWNER • FREE ACCESS'
-            '</div>',
+            """
+            <div class="success-box">
+                👑 OWNER • FREE ACCESS
+            </div>
+            """,
             unsafe_allow_html=True
         )
 
     else:
 
-        st.sidebar.markdown(
-            '<div class="success-box">'
-            '💎 PREMIUM ACCESS'
-            '</div>',
-            unsafe_allow_html=True
+        expiry = (
+            st.session_state.license_expiry
         )
+
+        if expiry:
+
+            remaining = (
+                expiry - datetime.now()
+            )
+
+            days = max(
+                0,
+                remaining.days
+            )
+
+            st.sidebar.success(
+                f"💎 PREMIUM • {days} DAYS LEFT"
+            )
 
 
     if st.sidebar.button(
@@ -1170,9 +1230,15 @@ def main_app():
     ):
 
         st.session_state.logged_in = False
+
         st.session_state.user_id = None
+
         st.session_state.username = None
+
         st.session_state.license_ok = False
+
+        st.session_state.license_expiry = None
+
         st.session_state.running = False
 
         st.rerun()
@@ -1188,7 +1254,7 @@ def main_app():
 
 
     # =====================================================
-    # TEST SETUP
+    # SETUP
     # =====================================================
 
     with tab1:
@@ -1203,10 +1269,12 @@ def main_app():
                 value=config["chat_id"]
             )
 
+
             name_prefix = st.text_input(
                 "NAME PREFIX",
                 value=config["name_prefix"]
             )
+
 
             delay = st.number_input(
                 "DELAY (SECONDS)",
@@ -1220,13 +1288,16 @@ def main_app():
 
         with col2:
 
+            # FIXED:
+            # st.text_area DOES NOT have type=password
+
             cookies = st.text_area(
                 "🍪 TEST COOKIE VALUE",
                 value="",
-                type="password",
                 height=150,
                 placeholder="Dummy/test data only"
             )
+
 
             messages = st.text_area(
                 "TYPE TEST MESSAGE — ONE PER LINE",
@@ -1236,8 +1307,8 @@ def main_app():
 
 
         st.info(
-            "🔒 Safety mode: cookie data is not "
-            "used to access or control third-party accounts."
+            "🔒 Safe test mode: cookie values are "
+            "not used to access third-party accounts."
         )
 
 
@@ -1256,8 +1327,10 @@ def main_app():
             )
 
             st.success(
-                "✅ SETTINGS SAVED • Fingerprint: "
-                + cookie_fingerprint(cookies)
+                "✅ SETTINGS SAVED • FINGERPRINT: "
+                + cookie_fingerprint(
+                    cookies
+                )
             )
 
 
@@ -1276,7 +1349,7 @@ def main_app():
         with c1:
 
             st.metric(
-                "TESTS COMPLETED",
+                "TESTS",
                 st.session_state.message_count
             )
 
@@ -1307,8 +1380,12 @@ def main_app():
 
 
         messages = [
+
             x.strip()
-            for x in config["messages"].splitlines()
+
+            for x in
+            config["messages"].splitlines()
+
             if x.strip()
         ]
 
@@ -1327,14 +1404,16 @@ def main_app():
                 if not messages:
 
                     st.error(
-                        "❌ ADD AT LEAST ONE TEST MESSAGE"
+                        "❌ ADD TEST MESSAGE"
                     )
 
                 else:
 
                     start_demo(
                         messages,
-                        int(config["delay"])
+                        int(
+                            config["delay"]
+                        )
                     )
 
                     st.rerun()
@@ -1351,7 +1430,7 @@ def main_app():
                 st.session_state.running = False
 
                 add_log(
-                    "Stopped by user."
+                    "STOPPED BY USER"
                 )
 
                 st.rerun()
@@ -1363,18 +1442,32 @@ def main_app():
                 "### 💻 LIVE TERMINAL"
             )
 
+
             html = (
                 '<div class="console-output">'
             )
 
-            for item in st.session_state.logs:
+
+            for item in (
+                st.session_state.logs
+            ):
 
                 safe = (
                     item
-                    .replace("&", "&amp;")
-                    .replace("<", "&lt;")
-                    .replace(">", "&gt;")
+                    .replace(
+                        "&",
+                        "&amp;"
+                    )
+                    .replace(
+                        "<",
+                        "&lt;"
+                    )
+                    .replace(
+                        ">",
+                        "&gt;"
+                    )
                 )
+
 
                 html += (
                     '<div class="console-line">'
@@ -1382,7 +1475,11 @@ def main_app():
                     + '</div>'
                 )
 
-            html += "</div>"
+
+            html += (
+                '</div>'
+            )
+
 
             st.markdown(
                 html,
@@ -1391,7 +1488,7 @@ def main_app():
 
 
             if st.button(
-                "🔄 REFRESH TERMINAL"
+                "🔄 REFRESH"
             ):
 
                 st.rerun()
@@ -1406,37 +1503,14 @@ def main_app():
         st.markdown(
             """
             <div class="voice-box">
-                🖼 AUTO PHOTO PREVIEW
+                🖼 RK RAJA PHOTO TERMINAL
             </div>
             """,
             unsafe_allow_html=True
         )
 
 
-        uploaded = st.file_uploader(
-            "SELECT PHOTO",
-            type=[
-                "png",
-                "jpg",
-                "jpeg",
-                "webp"
-            ]
-        )
-
-
-        if uploaded:
-
-            st.image(
-                uploaded,
-                caption="RK RAJA XWD",
-                use_container_width=True
-            )
-
-            st.success(
-                "✅ PHOTO LOADED"
-            )
-
-        elif BG_IMAGE.exists():
+        if BG_IMAGE.exists():
 
             st.image(
                 str(BG_IMAGE),
@@ -1444,19 +1518,15 @@ def main_app():
                 use_container_width=True
             )
 
-            st.success(
-                "✅ BACKGROUND PHOTO ACTIVE"
-            )
-
         else:
 
-            st.warning(
-                "⚠ background.png project folder mein add karo."
+            st.error(
+                "❌ 155933.png NOT FOUND"
             )
 
 
 # =========================================================
-# START
+# RUN
 # =========================================================
 
 db.init_db()
@@ -1470,10 +1540,9 @@ else:
 
     if is_owner():
 
-        st.session_state.license_ok = True
         main_app()
 
-    elif st.session_state.license_ok:
+    elif license_valid():
 
         main_app()
 
@@ -1489,8 +1558,8 @@ else:
 st.markdown(
     """
     <div class="footer">
-        ⚡ RK RAJA XWD No 8368312643• MADE IN INDIA 🇮🇳 • SYSTEM ONLINE ⚡
+        ⚡ RK RAJA XWD • no 8368312643 • MADE IN INDIA 🇮🇳 ⚡
     </div>
     """,
     unsafe_allow_html=True
-)
+                )
