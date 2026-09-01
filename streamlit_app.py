@@ -3,405 +3,1229 @@ import streamlit.components.v1 as components
 import time
 import threading
 import hashlib
+import os
 from datetime import datetime
 from pathlib import Path
-import base64
 import database as db
 
+
+# =========================================================
+# PAGE CONFIG
+# =========================================================
+
 st.set_page_config(
-    page_title="Tha LeGenD boY Raja 😈",
-    page_icon="✅",
+    page_title="RK RAJA XWD",
+    page_icon="😈",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
+
 # =========================================================
-# BACKGROUND IMAGE
-# Put background.png in the same folder as this file.
+# FILES
 # =========================================================
+
 BG_IMAGE = Path("background.png")
 
-def get_background_image():
-    if BG_IMAGE.exists():
-        with open(BG_IMAGE, "rb") as f:
-            return base64.b64encode(f.read()).decode()
-    return ""
 
-BG_BASE64 = get_background_image()
+# =========================================================
+# OWNER / LICENSE
+# =========================================================
 
-CUSTOM_CSS = f"""
+OWNER_USERNAME = os.getenv(
+    "OWNER_USERNAME",
+    "rkraja"
+)
+
+OWNER_LICENSE = os.getenv(
+    "OWNER_LICENSE",
+    "RKRAJA-PREMIUM-2026"
+)
+
+
+# =========================================================
+# HACKER CSS
+# =========================================================
+
+CUSTOM_CSS = """
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 
-* {{ font-family: 'Outfit', sans-serif !important; }}
+@import url(
+'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&display=swap'
+);
 
-.stApp {{
-    background-image:
-        linear-gradient(rgba(0,0,0,.50), rgba(0,0,0,.50)),
-        url("data:image/png;base64,{BG_BASE64}");
+* {
+    box-sizing: border-box;
+}
+
+html,
+body,
+[class*="css"] {
+    font-family: 'Share Tech Mono', monospace !important;
+}
+
+
+/* MAIN BACKGROUND */
+
+.stApp {
+
+    background:
+        linear-gradient(
+            rgba(0,0,0,.73),
+            rgba(0,0,0,.73)
+        ),
+        url("background.png");
+
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     background-attachment: fixed;
+
     color: white !important;
-}}
+}
 
-.main .block-container {{
-    background: rgba(5,10,25,.76);
-    border-radius: 28px;
-    padding: 35px;
-    border: 1px solid rgba(255,255,255,.18);
-    box-shadow: 0 10px 45px rgba(0,0,0,.35);
-    backdrop-filter: blur(7px);
-}}
 
-.main-header {{
-    padding: 42px 20px;
-    text-align: center;
-    border-radius: 25px;
-    background: linear-gradient(120deg,
-        rgba(0,234,255,.18),
-        rgba(120,40,255,.18),
-        rgba(255,30,160,.18),
-        rgba(0,255,160,.16));
-    border: 1px solid rgba(255,255,255,.20);
-    box-shadow: 0 0 30px rgba(0,234,255,.15);
-}}
+/* SCAN LINES */
 
-.main-header h1 {{
-    font-size: 3rem;
-    font-weight: 900;
-    background: linear-gradient(90deg,#00eaff,#7b2cff,#ff29a8,#00ffa6,#00eaff);
-    background-size: 300% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: rainbowText 5s linear infinite;
-}}
+.stApp::before {
 
-.main-header p {{
-    color: #e7fbff;
-    font-size: 1.1rem;
-    font-weight: 700;
-}}
+    content: "";
 
-@keyframes rainbowText {{
-    from {{ background-position: 0% center; }}
-    to {{ background-position: 300% center; }}
-}}
+    position: fixed;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    background:
+        repeating-linear-gradient(
+            0deg,
+            rgba(0,255,255,.025) 0px,
+            rgba(0,255,255,.025) 1px,
+            transparent 1px,
+            transparent 4px
+        );
+
+    z-index: 0;
+}
+
+
+/* CONTAINER */
+
+.main .block-container {
+
+    position: relative;
+
+    z-index: 1;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(0,0,0,.84),
+            rgba(2,15,28,.80),
+            rgba(20,0,30,.80)
+        );
+
+    border:
+        1px solid rgba(0,255,255,.35);
+
+    border-radius:
+        25px;
+
+    padding:
+        35px;
+
+    box-shadow:
+        0 0 25px rgba(0,255,255,.13),
+        0 0 70px rgba(130,0,255,.10);
+
+    backdrop-filter:
+        blur(10px);
+}
+
+
+/* HEADER */
+
+.main-header {
+
+    padding:
+        38px 20px;
+
+    text-align:
+        center;
+
+    border-radius:
+        22px;
+
+    background:
+        linear-gradient(
+            120deg,
+            rgba(0,255,255,.08),
+            rgba(120,0,255,.10),
+            rgba(255,0,170,.08)
+        );
+
+    border:
+        1px solid rgba(0,255,255,.30);
+
+    box-shadow:
+        0 0 30px rgba(0,255,255,.12);
+}
+
+
+.main-header h1 {
+
+    font-family:
+        'Orbitron',
+        monospace !important;
+
+    font-size:
+        3rem;
+
+    font-weight:
+        900;
+
+    letter-spacing:
+        5px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #00ffff,
+            #00ff88,
+            #ffffff,
+            #a855ff,
+            #ff00aa,
+            #00ffff
+        );
+
+    background-size:
+        400% auto;
+
+    -webkit-background-clip:
+        text;
+
+    -webkit-text-fill-color:
+        transparent;
+
+    animation:
+        rainbow 5s linear infinite;
+}
+
+
+.main-header p {
+
+    color:
+        #00ffff;
+
+    font-family:
+        'Share Tech Mono',
+        monospace !important;
+
+    letter-spacing:
+        4px;
+
+    text-shadow:
+        0 0 8px #00ffff;
+}
+
+
+@keyframes rainbow {
+
+    0% {
+        background-position: 0% center;
+    }
+
+    100% {
+        background-position: 400% center;
+    }
+}
+
+
+/* ALL HEADINGS */
+
+h1,
+h2,
+h3,
+h4 {
+
+    font-family:
+        'Orbitron',
+        monospace !important;
+
+    letter-spacing:
+        2px !important;
+}
+
+
+/* LABEL */
+
+label {
+
+    color:
+        #00ffff !important;
+
+    font-family:
+        'Orbitron',
+        monospace !important;
+
+    font-weight:
+        800 !important;
+
+    letter-spacing:
+        1px !important;
+
+    text-shadow:
+        0 0 7px #00ffff;
+}
+
+
+/* INPUT */
 
 .stTextInput input,
 .stTextArea textarea,
-.stNumberInput input {{
-    background: rgba(255,255,255,.08) !important;
-    color: white !important;
-    border: 1px solid #00eaff !important;
-    border-radius: 13px !important;
-}}
+.stNumberInput input {
 
-label {{
-    color: #72f7ff !important;
-    font-weight: 800 !important;
-}}
+    background:
+        rgba(0,0,0,.78) !important;
 
-.stButton > button {{
-    background: linear-gradient(100deg,#00bfff,#6c2cff,#ff229c,#00cfa0) !important;
-    background-size: 250% auto !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 14px !important;
-    font-weight: 800 !important;
-    box-shadow: 0 0 20px rgba(0,200,255,.18);
-    transition: .25s ease !important;
-}}
+    color:
+        #00ffcc !important;
 
-.stButton > button:hover {{
-    transform: translateY(-2px);
-    background-position: right center !important;
-}}
+    border:
+        1px solid #00ffff !important;
 
-.stTabs [data-baseweb="tab-list"] {{
-    gap: 8px;
-    background: rgba(255,255,255,.06);
-    padding: 8px;
-    border-radius: 16px;
-}}
+    border-radius:
+        10px !important;
 
-.stTabs [data-baseweb="tab"] {{
-    color: #8defff !important;
-    border-radius: 12px;
-    font-weight: 800;
-}}
+    font-family:
+        'Share Tech Mono',
+        monospace !important;
 
-.stTabs [aria-selected="true"] {{
-    color: white !important;
-    background: linear-gradient(90deg,#007cff,#762cff,#ff229c) !important;
-}}
+    caret-color:
+        #00ffff !important;
+}
 
-[data-testid="stMetric"] {{
-    background: linear-gradient(135deg,
-        rgba(0,234,255,.12),
-        rgba(118,44,255,.12),
-        rgba(255,34,156,.10));
-    border: 1px solid rgba(0,234,255,.25);
-    border-radius: 18px;
-    padding: 18px;
-}}
 
-[data-testid="stMetricLabel"] {{ color: #72f7ff !important; }}
+.stTextInput input:focus,
+.stTextArea textarea:focus,
+.stNumberInput input:focus {
 
-[data-testid="stMetricValue"] {{
-    color: #ffffff !important;
-    font-weight: 900 !important;
-}}
+    border-color:
+        #ff00ff !important;
 
-.console-output {{
-    background: rgba(0,0,0,.72);
-    border: 1px solid #00eaff;
-    border-radius: 16px;
-    padding: 18px;
-    max-height: 400px;
-    overflow-y: auto;
-}}
+    box-shadow:
+        0 0 15px rgba(255,0,255,.30) !important;
+}
 
-.console-line {{
-    padding: 9px 12px;
-    margin-bottom: 7px;
-    border-radius: 8px;
-    background: linear-gradient(90deg,
-        rgba(0,234,255,.10),
-        rgba(118,44,255,.08),
-        rgba(255,34,156,.06));
-    border-left: 4px solid #00eaff;
-    color: #dfffff;
-    font-family: Consolas, monospace !important;
-}}
 
-.success-box {{
-    background: rgba(0,255,166,.15);
-    border: 1px solid #00ffa6;
-    border-radius: 13px;
-    padding: 15px;
-    text-align: center;
-    color: #00ffa6;
-    font-weight: 800;
-}}
+/* BUTTON */
 
-.voice-box {{
-    margin: 18px 0;
-    padding: 16px;
-    border-radius: 18px;
-    text-align: center;
-    background: linear-gradient(120deg,
-        rgba(0,234,255,.12),
-        rgba(123,44,255,.14),
-        rgba(255,41,168,.12));
-    border: 1px solid rgba(0,234,255,.35);
-    color: white;
-    font-weight: 800;
-}}
+.stButton > button {
 
-.footer {{
-    text-align: center;
-    margin-top: 30px;
-    padding: 20px;
-    font-weight: 900;
-    background: linear-gradient(90deg,#00eaff,#7b2cff,#ff29a8,#00ffa6);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}}
+    min-height:
+        48px;
 
-section[data-testid="stSidebar"] {{
-    background: linear-gradient(160deg,#080d20,#111735,#190b25) !important;
-}}
+    background:
+        linear-gradient(
+            90deg,
+            #00c6ff,
+            #0066ff,
+            #8b00ff,
+            #ff00aa,
+            #00ff99
+        ) !important;
+
+    background-size:
+        300% auto !important;
+
+    color:
+        white !important;
+
+    border:
+        1px solid rgba(255,255,255,.25) !important;
+
+    border-radius:
+        10px !important;
+
+    font-family:
+        'Orbitron',
+        monospace !important;
+
+    font-weight:
+        900 !important;
+
+    letter-spacing:
+        1px !important;
+
+    box-shadow:
+        0 0 18px rgba(0,255,255,.20);
+
+    transition:
+        .25s ease !important;
+}
+
+
+.stButton > button:hover {
+
+    transform:
+        translateY(-2px);
+
+    background-position:
+        right center !important;
+
+    box-shadow:
+        0 0 25px rgba(0,255,255,.45);
+}
+
+
+/* TABS */
+
+.stTabs [data-baseweb="tab-list"] {
+
+    gap:
+        8px;
+
+    background:
+        rgba(0,0,0,.55);
+
+    padding:
+        8px;
+
+    border-radius:
+        14px;
+}
+
+
+.stTabs [data-baseweb="tab"] {
+
+    color:
+        #00ffff !important;
+
+    font-family:
+        'Orbitron',
+        monospace !important;
+
+    font-weight:
+        800;
+}
+
+
+.stTabs [aria-selected="true"] {
+
+    color:
+        white !important;
+
+    background:
+        linear-gradient(
+            90deg,
+            #005eff,
+            #8b00ff,
+            #ff0099
+        ) !important;
+
+    border-radius:
+        10px;
+}
+
+
+/* METRICS */
+
+[data-testid="stMetric"] {
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(0,255,255,.10),
+            rgba(120,0,255,.10),
+            rgba(255,0,170,.08)
+        );
+
+    border:
+        1px solid rgba(0,255,255,.28);
+
+    border-radius:
+        16px;
+
+    padding:
+        18px;
+}
+
+
+[data-testid="stMetricLabel"] {
+
+    color:
+        #00ffff !important;
+
+    font-family:
+        'Orbitron',
+        monospace !important;
+}
+
+
+[data-testid="stMetricValue"] {
+
+    color:
+        white !important;
+
+    font-family:
+        'Orbitron',
+        monospace !important;
+
+    font-weight:
+        900 !important;
+}
+
+
+/* VOICE BOX */
+
+.voice-box {
+
+    margin:
+        18px 0;
+
+    padding:
+        18px;
+
+    border:
+        1px solid #00ffff;
+
+    border-radius:
+        15px;
+
+    text-align:
+        center;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(0,255,255,.08),
+            rgba(150,0,255,.10),
+            rgba(255,0,150,.08)
+        );
+
+    color:
+        #00ffff;
+
+    font-family:
+        'Orbitron',
+        monospace !important;
+
+    font-weight:
+        900;
+
+    letter-spacing:
+        2px;
+
+    text-shadow:
+        0 0 10px #00ffff;
+}
+
+
+/* CONSOLE */
+
+.console-output {
+
+    background:
+        rgba(0,0,0,.88);
+
+    border:
+        1px solid #00ffff;
+
+    border-radius:
+        14px;
+
+    padding:
+        18px;
+
+    max-height:
+        400px;
+
+    overflow-y:
+        auto;
+}
+
+
+.console-line {
+
+    padding:
+        9px 12px;
+
+    margin-bottom:
+        7px;
+
+    background:
+        rgba(0,255,255,.06);
+
+    border-left:
+        3px solid #00ffff;
+
+    border-radius:
+        6px;
+
+    color:
+        #00ff99;
+
+    font-family:
+        'Share Tech Mono',
+        monospace !important;
+
+    text-shadow:
+        0 0 5px rgba(0,255,120,.35);
+}
+
+
+/* SUCCESS */
+
+.success-box {
+
+    background:
+        rgba(0,255,120,.08);
+
+    border:
+        1px solid #00ff99;
+
+    border-radius:
+        10px;
+
+    padding:
+        14px;
+
+    text-align:
+        center;
+
+    color:
+        #00ff99;
+
+    font-family:
+        'Orbitron',
+        monospace !important;
+
+    font-weight:
+        900;
+}
+
+
+/* SIDEBAR */
+
+section[data-testid="stSidebar"] {
+
+    background:
+        linear-gradient(
+            160deg,
+            #02060d,
+            #071426,
+            #13051c
+        ) !important;
+}
+
+
+/* PHOTO PREVIEW */
+
+.photo-card {
+
+    border:
+        1px solid #00ffff;
+
+    border-radius:
+        18px;
+
+    padding:
+        10px;
+
+    background:
+        rgba(0,0,0,.65);
+
+    box-shadow:
+        0 0 20px rgba(0,255,255,.15);
+
+    text-align:
+        center;
+}
+
+
+/* FOOTER */
+
+.footer {
+
+    text-align:
+        center;
+
+    margin-top:
+        30px;
+
+    padding:
+        20px;
+
+    font-family:
+        'Orbitron',
+        monospace !important;
+
+    font-size:
+        13px;
+
+    letter-spacing:
+        3px;
+
+    font-weight:
+        900;
+
+    background:
+        linear-gradient(
+            90deg,
+            #00ffff,
+            #00ff88,
+            #ffffff,
+            #a855ff,
+            #ff00aa,
+            #00ffff
+        );
+
+    background-size:
+        300% auto;
+
+    -webkit-background-clip:
+        text;
+
+    -webkit-text-fill-color:
+        transparent;
+
+    animation:
+        rainbow 5s linear infinite;
+}
+
+
+/* STREAMLIT BRAND */
+
+#MainMenu {
+    visibility: hidden;
+}
+
+footer {
+    visibility: hidden;
+}
+
 </style>
 """
 
-st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+st.markdown(
+    CUSTOM_CSS,
+    unsafe_allow_html=True
+)
+
 
 # =========================================================
 # WELCOME VOICE
 # =========================================================
+
 WELCOME_VOICE = """
 <script>
-(function () {
-    const text = "RK RAJA XWD ke end to end mein aapka welcome hai.";
 
-    function speakWelcome() {
-        if (!("speechSynthesis" in window)) return;
+(function () {
+
+    const text =
+        "RK RAJA XWD ke end to end mein aapka welcome hai.";
+
+    function speak() {
+
+        if (!("speechSynthesis" in window)) {
+            return;
+        }
+
         window.speechSynthesis.cancel();
 
-        const speech = new SpeechSynthesisUtterance(text);
-        speech.lang = "hi-IN";
-        speech.rate = 0.88;
-        speech.pitch = 1.0;
-        speech.volume = 1.0;
+        const msg =
+            new SpeechSynthesisUtterance(text);
 
-        window.speechSynthesis.speak(speech);
+        msg.lang = "hi-IN";
+        msg.rate = 0.88;
+        msg.pitch = 1.0;
+        msg.volume = 1.0;
+
+        window.speechSynthesis.speak(msg);
     }
 
-    setTimeout(speakWelcome, 1000);
+
+    setTimeout(
+        speak,
+        1200
+    );
+
+
+    document.addEventListener(
+        "click",
+        function () {
+
+            if (
+                !window.__rkWelcomePlayed
+            ) {
+
+                window.__rkWelcomePlayed = true;
+
+                speak();
+            }
+
+        },
+        { once: true }
+    );
+
 })();
+
 </script>
 """
 
-components.html(WELCOME_VOICE, height=1, scrolling=False)
+components.html(
+    WELCOME_VOICE,
+    height=1,
+    scrolling=False
+)
+
 
 # =========================================================
 # SESSION STATE
 # =========================================================
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-if "user_id" not in st.session_state:
-    st.session_state.user_id = None
-if "username" not in st.session_state:
-    st.session_state.username = None
-if "logs" not in st.session_state:
-    st.session_state.logs = []
-if "running" not in st.session_state:
-    st.session_state.running = False
-if "message_count" not in st.session_state:
-    st.session_state.message_count = 0
+
+defaults = {
+    "logged_in": False,
+    "user_id": None,
+    "username": None,
+    "license_ok": False,
+    "logs": [],
+    "running": False,
+    "message_count": 0,
+}
+
+for key, value in defaults.items():
+
+    if key not in st.session_state:
+        st.session_state[key] = value
+
+
+# =========================================================
+# FUNCTIONS
+# =========================================================
 
 def add_log(message):
-    stamp = datetime.now().strftime("%H:%M:%S")
-    st.session_state.logs.append(f"[{stamp}] {message}")
-    st.session_state.logs = st.session_state.logs[-50:]
+
+    stamp = datetime.now().strftime(
+        "%H:%M:%S"
+    )
+
+    st.session_state.logs.append(
+        f"[{stamp}] {message}"
+    )
+
+    st.session_state.logs = (
+        st.session_state.logs[-50:]
+    )
+
 
 def cookie_fingerprint(value):
+
     if not value:
         return "NOT SET"
-    return hashlib.sha256(value.encode()).hexdigest()[:12]
+
+    return hashlib.sha256(
+        value.encode()
+    ).hexdigest()[:12]
+
+
+def is_owner():
+
+    username = st.session_state.username
+
+    if not username:
+        return False
+
+    return (
+        username.lower()
+        == OWNER_USERNAME.lower()
+    )
+
 
 def demo_worker(messages, delay):
+
     for message in messages:
+
         if not st.session_state.running:
             break
+
         time.sleep(delay)
+
         st.session_state.message_count += 1
-        add_log(f"TEST #{st.session_state.message_count}: {message[:60]}")
+
+        add_log(
+            "TEST #"
+            + str(
+                st.session_state.message_count
+            )
+            + ": "
+            + message[:60]
+        )
+
 
 def start_demo(messages, delay):
+
     if st.session_state.running:
         return
 
     st.session_state.running = True
     st.session_state.message_count = 0
     st.session_state.logs = []
-    add_log("Demo automation started.")
+
+    add_log(
+        "Local demo automation started."
+    )
 
     def worker():
+
         try:
-            demo_worker(messages, delay)
+
+            demo_worker(
+                messages,
+                delay
+            )
+
         finally:
+
             st.session_state.running = False
-            add_log("Demo automation stopped.")
 
-    threading.Thread(target=worker, daemon=True).start()
+            add_log(
+                "Local demo automation stopped."
+            )
 
-def login_page():
-    st.markdown("""
-    <div class="main-header">
-        <h1>🤍 professor 🏵️</h1>
-        <p>COOKIE TEST • LOCAL DEMO PANEL</p>
-    </div>
-    """, unsafe_allow_html=True)
+    threading.Thread(
+        target=worker,
+        daemon=True
+    ).start()
 
-    st.markdown("""
-    <div class="voice-box">
-        🔊 RK RAJA XWD KE END TO END MEIN AAPKA WELCOME HAI
-    </div>
-    """, unsafe_allow_html=True)
 
-    tab1, tab2 = st.tabs(["LOGIN", "SIGN-UP"])
+# =========================================================
+# LICENSE PAGE
+# =========================================================
 
-    with tab1:
-        username = st.text_input("USERNAME", key="login_user")
-        password = st.text_input("PASSWORD", key="login_pass", type="password")
+def license_page():
 
-        if st.button("LOGIN", use_container_width=True):
-            if username and password:
-                uid = db.verify_user(username, password)
-                if uid:
-                    st.session_state.logged_in = True
-                    st.session_state.user_id = uid
-                    st.session_state.username = username
-                    st.rerun()
-                else:
-                    st.error("❌ INVALID USERNAME OR PASSWORD")
-            else:
-                st.warning("⚠️ ENTER BOTH FIELDS")
-
-    with tab2:
-        username = st.text_input("CHOOSE USERNAME", key="signup_user")
-        password = st.text_input("CHOOSE PASSWORD", key="signup_pass", type="password")
-        confirm = st.text_input("CONFIRM PASSWORD", key="signup_confirm", type="password")
-
-        if st.button("CREATE ACCOUNT", use_container_width=True):
-            if not username or not password or not confirm:
-                st.warning("⚠️ FILL ALL FIELDS")
-            elif password != confirm:
-                st.error("❌ PASSWORDS DO NOT MATCH")
-            else:
-                ok, msg = db.create_user(username, password)
-                (st.success if ok else st.error)(msg)
-
-def main_app():
-    uid = st.session_state.user_id
-    config = db.get_user_config(uid)
-
-    st.markdown("""
-    <div class="main-header">
-        <h1>🤯 professor 🩷</h1>
-        <p>MULTI-COLOUR COOKIE TEST SERVER</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.sidebar.markdown("### 👤 USER DASHBOARD")
-    st.sidebar.write(f"**USERNAME:** {st.session_state.username}")
-    st.sidebar.write(f"**USER ID:** {uid}")
-
-    st.sidebar.markdown(
-        '<div class="success-box">✅ PREMIUM DEMO ACCESS</div>',
+    st.markdown(
+        """
+        <div class="main-header">
+            <h1>☠ PREMIUM ACCESS ☠</h1>
+            <p>// LICENSE TERMINAL //</p>
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
-    if st.sidebar.button("🚪 LOGOUT", use_container_width=True):
+    st.markdown(
+        """
+        <div class="voice-box">
+            🔐 PREMIUM LICENSE REQUIRED
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    license_key = st.text_input(
+        "ENTER LICENSE KEY",
+        type="password"
+    )
+
+    if st.button(
+        "🔓 ACTIVATE PREMIUM",
+        use_container_width=True
+    ):
+
+        if license_key == OWNER_LICENSE:
+
+            st.session_state.license_ok = True
+
+            st.success(
+                "✅ PREMIUM ACCESS ACTIVATED"
+            )
+
+            st.rerun()
+
+        else:
+
+            st.error(
+                "❌ INVALID LICENSE KEY"
+            )
+
+
+# =========================================================
+# LOGIN PAGE
+# =========================================================
+
+def login_page():
+
+    st.markdown(
+        """
+        <div class="main-header">
+
+            <h1>☠ RK RAJA XWD ☠</h1>
+
+            <p>
+                // SECURE ACCESS TERMINAL //
+            </p>
+
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+    st.markdown(
+        """
+        <div class="voice-box">
+
+            🔊 RK RAJA XWD KE END TO END
+            MEIN AAPKA WELCOME HAI
+
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+    login_tab, signup_tab = st.tabs(
+        [
+            "🔐 LOGIN",
+            "➕ SIGN-UP"
+        ]
+    )
+
+
+    # LOGIN
+
+    with login_tab:
+
+        username = st.text_input(
+            "USERNAME",
+            key="login_user"
+        )
+
+        password = st.text_input(
+            "PASSWORD",
+            key="login_pass",
+            type="password"
+        )
+
+
+        if st.button(
+            "⚡ LOGIN TO SYSTEM",
+            use_container_width=True
+        ):
+
+            if not username or not password:
+
+                st.warning(
+                    "⚠ ENTER BOTH FIELDS"
+                )
+
+            else:
+
+                uid = db.verify_user(
+                    username,
+                    password
+                )
+
+                if uid:
+
+                    st.session_state.logged_in = True
+                    st.session_state.user_id = uid
+                    st.session_state.username = username
+
+                    if is_owner():
+                        st.session_state.license_ok = True
+
+                    st.rerun()
+
+                else:
+
+                    st.error(
+                        "❌ ACCESS DENIED"
+                    )
+
+
+    # SIGN UP
+
+    with signup_tab:
+
+        username = st.text_input(
+            "CHOOSE USERNAME",
+            key="signup_user"
+        )
+
+        password = st.text_input(
+            "CHOOSE PASSWORD",
+            key="signup_pass",
+            type="password"
+        )
+
+        confirm = st.text_input(
+            "CONFIRM PASSWORD",
+            key="signup_confirm",
+            type="password"
+        )
+
+
+        if st.button(
+            "🚀 CREATE ACCOUNT",
+            use_container_width=True
+        ):
+
+            if not username or not password or not confirm:
+
+                st.warning(
+                    "⚠ FILL ALL FIELDS"
+                )
+
+            elif password != confirm:
+
+                st.error(
+                    "❌ PASSWORDS DO NOT MATCH"
+                )
+
+            else:
+
+                ok, msg = db.create_user(
+                    username,
+                    password
+                )
+
+                if ok:
+                    st.success(msg)
+                else:
+                    st.error(msg)
+
+
+# =========================================================
+# MAIN APP
+# =========================================================
+
+def main_app():
+
+    uid = st.session_state.user_id
+
+    config = db.get_user_config(uid)
+
+
+    st.markdown(
+        """
+        <div class="main-header">
+
+            <h1>☠ RK RAJA XWD ☠</h1>
+
+            <p>
+                // PREMIUM MULTI-COLOUR TERMINAL //
+            </p>
+
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+    # SIDEBAR
+
+    st.sidebar.markdown(
+        "## 👤 USER TERMINAL"
+    )
+
+    st.sidebar.write(
+        "**USERNAME:** "
+        + str(
+            st.session_state.username
+        )
+    )
+
+    st.sidebar.write(
+        "**USER ID:** "
+        + str(uid)
+    )
+
+
+    if is_owner():
+
+        st.sidebar.markdown(
+            '<div class="success-box">'
+            '👑 OWNER • FREE ACCESS'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+    else:
+
+        st.sidebar.markdown(
+            '<div class="success-box">'
+            '💎 PREMIUM ACCESS'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+
+    if st.sidebar.button(
+        "🚪 LOGOUT",
+        use_container_width=True
+    ):
+
         st.session_state.logged_in = False
         st.session_state.user_id = None
         st.session_state.username = None
+        st.session_state.license_ok = False
         st.session_state.running = False
+
         st.rerun()
 
-    tab1, tab2 = st.tabs(["🍪 COOKIE SET-UP", "🚀 TEST AUTOMATION"])
+
+    tab1, tab2, tab3 = st.tabs(
+        [
+            "🍪 TEST SET-UP",
+            "🚀 AUTOMATION",
+            "🖼 PHOTO"
+        ]
+    )
+
+
+    # =====================================================
+    # TEST SETUP
+    # =====================================================
 
     with tab1:
+
         col1, col2 = st.columns(2)
 
+
         with col1:
+
             chat_id = st.text_input(
                 "TEST CHAT ID",
-                value=config["chat_id"],
-                placeholder="Demo ID"
+                value=config["chat_id"]
             )
+
             name_prefix = st.text_input(
                 "NAME PREFIX",
-                value=config["name_prefix"],
-                placeholder="Professor"
+                value=config["name_prefix"]
             )
+
             delay = st.number_input(
                 "DELAY (SECONDS)",
                 min_value=1,
                 max_value=60,
-                value=int(config["delay"])
+                value=int(
+                    config["delay"]
+                )
             )
 
+
         with col2:
-            # FIX: st.text_area() does not support type="password"
+
             cookies = st.text_area(
                 "🍪 TEST COOKIE VALUE",
                 value="",
+                type="password",
                 height=150,
-                placeholder="Use only dummy/test data"
+                placeholder="Dummy/test data only"
             )
 
             messages = st.text_area(
@@ -410,12 +1234,18 @@ def main_app():
                 height=180
             )
 
+
         st.info(
-            "🔒 Safety mode: the cookie value is never injected into Facebook "
-            "or used to access a third-party account."
+            "🔒 Safety mode: cookie data is not "
+            "used to access or control third-party accounts."
         )
 
-        if st.button("💾 SAVE SETTINGS", use_container_width=True):
+
+        if st.button(
+            "💾 SAVE SETTINGS",
+            use_container_width=True
+        ):
+
             db.update_user_config(
                 uid,
                 chat_id,
@@ -424,28 +1254,57 @@ def main_app():
                 cookies,
                 messages
             )
+
             st.success(
-                f"✅ SAVED • Cookie fingerprint: {cookie_fingerprint(cookies)}"
+                "✅ SETTINGS SAVED • Fingerprint: "
+                + cookie_fingerprint(cookies)
             )
 
+
+    # =====================================================
+    # AUTOMATION
+    # =====================================================
+
     with tab2:
+
         config = db.get_user_config(uid)
+
 
         c1, c2, c3 = st.columns(3)
 
-        with c1:
-            st.metric("TESTS COMPLETED", st.session_state.message_count)
 
-        with c2:
+        with c1:
+
             st.metric(
-                "STATUS",
-                "🟢 RUNNING" if st.session_state.running else "🔴 STOPPED"
+                "TESTS COMPLETED",
+                st.session_state.message_count
             )
 
+
+        with c2:
+
+            st.metric(
+                "STATUS",
+                (
+                    "🟢 RUNNING"
+                    if st.session_state.running
+                    else "🔴 STOPPED"
+                )
+            )
+
+
         with c3:
-            st.metric("COOKIE", cookie_fingerprint(config["cookies"]))
+
+            st.metric(
+                "COOKIE",
+                cookie_fingerprint(
+                    config["cookies"]
+                )
+            )
+
 
         st.divider()
+
 
         messages = [
             x.strip()
@@ -453,57 +1312,185 @@ def main_app():
             if x.strip()
         ]
 
+
         c1, c2 = st.columns(2)
 
+
         with c1:
+
             if st.button(
-                "▶️ START TEST",
+                "▶️ START LOCAL TEST",
                 disabled=st.session_state.running,
                 use_container_width=True
             ):
+
                 if not messages:
-                    st.error("❌ ADD AT LEAST ONE TEST MESSAGE")
+
+                    st.error(
+                        "❌ ADD AT LEAST ONE TEST MESSAGE"
+                    )
+
                 else:
-                    start_demo(messages, int(config["delay"]))
+
+                    start_demo(
+                        messages,
+                        int(config["delay"])
+                    )
+
                     st.rerun()
 
+
         with c2:
+
             if st.button(
                 "⏹️ STOP TEST",
                 disabled=not st.session_state.running,
                 use_container_width=True
             ):
+
                 st.session_state.running = False
-                add_log("Stopped by user.")
+
+                add_log(
+                    "Stopped by user."
+                )
+
                 st.rerun()
+
 
         if st.session_state.logs:
-            st.markdown("### 📊 LIVE CONSOLE")
 
-            html = '<div class="console-output">'
+            st.markdown(
+                "### 💻 LIVE TERMINAL"
+            )
+
+            html = (
+                '<div class="console-output">'
+            )
 
             for item in st.session_state.logs:
+
                 safe = (
-                    item.replace("&", "&amp;")
-                        .replace("<", "&lt;")
-                        .replace(">", "&gt;")
+                    item
+                    .replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;")
                 )
-                html += f'<div class="console-line">{safe}</div>'
+
+                html += (
+                    '<div class="console-line">'
+                    + safe
+                    + '</div>'
+                )
 
             html += "</div>"
-            st.markdown(html, unsafe_allow_html=True)
 
-            if st.button("🔄 REFRESH"):
+            st.markdown(
+                html,
+                unsafe_allow_html=True
+            )
+
+
+            if st.button(
+                "🔄 REFRESH TERMINAL"
+            ):
+
                 st.rerun()
+
+
+    # =====================================================
+    # PHOTO
+    # =====================================================
+
+    with tab3:
+
+        st.markdown(
+            """
+            <div class="voice-box">
+                🖼 AUTO PHOTO PREVIEW
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+
+        uploaded = st.file_uploader(
+            "SELECT PHOTO",
+            type=[
+                "png",
+                "jpg",
+                "jpeg",
+                "webp"
+            ]
+        )
+
+
+        if uploaded:
+
+            st.image(
+                uploaded,
+                caption="RK RAJA XWD",
+                use_container_width=True
+            )
+
+            st.success(
+                "✅ PHOTO LOADED"
+            )
+
+        elif BG_IMAGE.exists():
+
+            st.image(
+                str(BG_IMAGE),
+                caption="RK RAJA XWD",
+                use_container_width=True
+            )
+
+            st.success(
+                "✅ BACKGROUND PHOTO ACTIVE"
+            )
+
+        else:
+
+            st.warning(
+                "⚠ background.png project folder mein add karo."
+            )
+
+
+# =========================================================
+# START
+# =========================================================
 
 db.init_db()
 
+
 if not st.session_state.logged_in:
+
     login_page()
+
 else:
-    main_app()
+
+    if is_owner():
+
+        st.session_state.license_ok = True
+        main_app()
+
+    elif st.session_state.license_ok:
+
+        main_app()
+
+    else:
+
+        license_page()
+
+
+# =========================================================
+# FOOTER
+# =========================================================
 
 st.markdown(
-    '<div class="footer">MADE IN INDIA 🇮🇳 • PROFESSOR PANEL</div>',
+    """
+    <div class="footer">
+        ⚡ RK RAJA XWD No 8368312643• MADE IN INDIA 🇮🇳 • SYSTEM ONLINE ⚡
+    </div>
+    """,
     unsafe_allow_html=True
 )
