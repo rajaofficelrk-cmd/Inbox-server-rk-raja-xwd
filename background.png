@@ -1,1 +1,14 @@
-background.png
+# ==============================
+# 🖼️ RK RAJA BACKGROUND IMAGE
+# ==============================
+
+BG_IMAGE = Path("background.png")
+
+def get_background_image():
+    if BG_IMAGE.exists():
+        with open(BG_IMAGE, "rb") as f:
+            encoded = base64.b64encode(f.read()).decode()
+        return encoded
+    return ""
+
+BG_BASE64 = get_background_image()
