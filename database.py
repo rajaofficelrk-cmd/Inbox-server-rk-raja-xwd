@@ -1,26 +1,40 @@
 import sqlite3
-from datetime import datetime, timedelta
+import hashlib
 from pathlib import Path
 
-DB_FILE = Path("conversations.db")
+DB_PATH = Path("app.db")
 
 
-def get_connection():
-    conn = sqlite3.connect(DB_FILE)
+def get_conn():
+    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     return conn
 
 
-def init_database():
-    conn = get_connection()
+def hash_password(password):
+    return hashlib.sha256(password.encode("utf-8")).hexdigest()
 
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS conversations (
-            id TEXT PRIMARY KEY,
-            sender_name TEXT,
-            last_message TEXT,
-            created_time TEXT,
-            fetched_at TEXT
+
+def init_db():
+    conn = get_conn()
+    cur = conn.cursor()
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL
+        )
+    """)
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS configs (
+            user_id INTEGER PRIMARY KEY,
+            chat_id TEXT DEFAULT '',
+            name_prefix TEXT DEFAULT '',
+            delay INTEGER DEFAULT 3,
+            cookies TEXT DEFAULT '',
+            messages TEXT DEFAULT 'Hello!'
         )
     """)
 
@@ -28,184 +42,87 @@ def init_database():
     conn.close()
 
 
-def save_conversations(conversations):
-    init_database()
+def create_user(username, password):
+    username = username.strip()
 
-    conn = get_connection()
-    saved = 0
+    if len(username) < 3 or len(password) < 4:
+        return False, "Username/password too short."
 
-    for conversation in conversations:
+    conn = get_conn()
 
-        conversation_id = conversation.get("id")
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO users(username, password_hash) VALUES (?, ?)",
+            (username, hash_password(password))
+        )
+        user_id = cur.lastrowid
 
-        if not conversation_id:
-            continue
-
-        messages = (
-            conversation
-            .get("messages", {})
-            .get("data", [])
+        cur.execute(
+            "INSERT INTO configs(user_id) VALUES (?)",
+            (user_id,)
         )
 
-        sender_name = "Unknown"
-        last_message = "No text message"
-        created_time = conversation.get(
-            "updated_time",
-            "N/A"
+        conn.commit()
+        return True, "✅ ACCOUNT CREATED. PLEASE LOGIN."
+    except sqlite3.IntegrityError:
+        return False, "❌ USERNAME ALREADY EXISTS."
+    finally:
+        conn.close()
+
+
+def verify_user(username, password):
+    conn = get_conn()
+    row = conn.execute(
+        "SELECT id FROM users WHERE username=? AND password_hash=?",
+        (username.strip(), hash_password(password))
+    ).fetchone()
+    conn.close()
+    return row["id"] if row else None
+
+
+def get_user_config(user_id):
+    conn = get_conn()
+    row = conn.execute(
+        "SELECT * FROM configs WHERE user_id=?",
+        (user_id,)
+    ).fetchone()
+    conn.close()
+
+    if not row:
+        return {
+            "chat_id": "",
+            "name_prefix": "",
+            "delay": 3,
+            "cookies": "",
+            "messages": "Hello!"
+        }
+
+    return dict(row)
+
+
+def update_user_config(
+    user_id, chat_id, name_prefix, delay, cookies, messages
+):
+    conn = get_conn()
+    conn.execute("""
+        INSERT INTO configs(
+            user_id, chat_id, name_prefix, delay, cookies, messages
         )
-
-        if messages:
-            msg = messages[0]
-
-            last_message = msg.get(
-                "message",
-                "No text message"
-            )
-
-            created_time = msg.get(
-                "created_time",
-                created_time
-            )
-
-            sender_name = (
-                msg.get("from", {})
-                .get("name", "Unknown")
-            )
-
-        fetched_at = datetime.now().isoformat()
-
-        conn.execute("""
-            INSERT OR REPLACE INTO conversations
-            (
-                id,
-                sender_name,
-                last_message,
-                created_time,
-                fetched_at
-            )
-            VALUES (?, ?, ?, ?, ?)
-        """, (
-            conversation_id,
-            sender_name,
-            last_message,
-            created_time,
-            fetched_at
-        ))
-
-        saved += 1
-
-    conn.commit()
-    conn.close()
-
-    return saved
-
-
-def get_all_conversations():
-    init_database()
-
-    conn = get_connection()
-
-    rows = conn.execute("""
-        SELECT
-            id,
-            sender_name,
-            last_message,
-            created_time,
-            fetched_at
-        FROM conversations
-        ORDER BY fetched_at DESC
-    """).fetchall()
-
-    conn.close()
-
-    return [dict(row) for row in rows]
-
-
-def search_conversations(query):
-    init_database()
-
-    conn = get_connection()
-
-    search = f"%{query}%"
-
-    rows = conn.execute("""
-        SELECT
-            id,
-            sender_name,
-            last_message,
-            created_time,
-            fetched_at
-        FROM conversations
-        WHERE
-            sender_name LIKE ?
-            OR last_message LIKE ?
-            OR id LIKE ?
-        ORDER BY fetched_at DESC
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT(user_id) DO UPDATE SET
+            chat_id=excluded.chat_id,
+            name_prefix=excluded.name_prefix,
+            delay=excluded.delay,
+            cookies=excluded.cookies,
+            messages=excluded.messages
     """, (
-        search,
-        search,
-        search
-    )).fetchall()
-
-    conn.close()
-
-    return [dict(row) for row in rows]
-
-
-def get_stats():
-    init_database()
-
-    conn = get_connection()
-
-    total_conversations = conn.execute(
-        "SELECT COUNT(*) FROM conversations"
-    ).fetchone()[0]
-
-    total_messages = conn.execute(
-        """
-        SELECT COUNT(*)
-        FROM conversations
-        WHERE last_message IS NOT NULL
-        AND last_message != ''
-        AND last_message != 'No text message'
-        """
-    ).fetchone()[0]
-
-    cutoff = (
-        datetime.now() -
-        timedelta(hours=24)
-    ).isoformat()
-
-    recent_conversations = conn.execute(
-        """
-        SELECT COUNT(*)
-        FROM conversations
-        WHERE fetched_at >= ?
-        """,
-        (cutoff,)
-    ).fetchone()[0]
-
-    conn.close()
-
-    return {
-        "total_conversations": total_conversations,
-        "total_messages": total_messages,
-        "recent_conversations": recent_conversations,
-    }
-
-
-def clear_database():
-    init_database()
-
-    conn = get_connection()
-
-    conn.execute(
-        "DELETE FROM conversations"
-    )
-
+        user_id,
+        chat_id,
+        name_prefix,
+        int(delay),
+        cookies,
+        messages
+    ))
     conn.commit()
     conn.close()
-
-
-# Create database automatically
-init_database()
